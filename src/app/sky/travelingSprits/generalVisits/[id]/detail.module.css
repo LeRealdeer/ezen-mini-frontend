@@ -15,13 +15,33 @@
   font-family: 'Inter', sans-serif;
 }
 
+/* 제목과 시즌 뱃지 행 */
+.titleRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+
 .title {
   font-size: 2rem;
   font-weight: 700;
   text-align: center;
-  margin-bottom: 2rem;
+  margin: 0;
   color: #1e40af;
   letter-spacing: -0.02em;
+}
+
+.seasonBadge {
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  white-space: nowrap;
 }
 
 /******************************************************
@@ -149,6 +169,10 @@
   gap: 1rem;
 }
 
+.topInfoGrid .detailItem:nth-child(3) {
+  grid-column: span 2;
+}
+
 .detailItem {
   background-color: white;
   border: 1px solid #e2e8f0;
@@ -195,14 +219,13 @@
 }
 
 /******************************************************
- * 착용샷 영역
+ * 착용샷 영역 (PC와 모바일 통합)
  ******************************************************/
-.desktopWearingShot {
+.wearingShotSection {
   margin: 3rem 0;
-  display: block;
 }
 
-.desktopWearingShot strong {
+.wearingShotLabel {
   display: block;
   text-align: center;
   margin-bottom: 1rem;
@@ -211,53 +234,41 @@
   color: #1e40af;
 }
 
-.horizontalList {
+.wearingShotWrapper {
   display: flex;
+  flex-direction: column;
   gap: 1rem;
-  overflow-x: auto;
-  padding: 1rem 0;
-  justify-content: flex-start;
 }
 
-.horizontalList li {
-  flex: 0 0 auto;
-}
-
-.smallImage {
-  height: 400px;
-  width: auto;
-  object-fit: cover;
-  border-radius: 8px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
-  border: 1px solid #e2e8f0;
-}
-
-.mobileWearingShot {
-  display: none;
-  margin: 3rem 0;
-}
-
-.mobileWearingShot strong {
-  display: block;
-  text-align: center;
-  margin-bottom: 1rem;
-  font-size: 1.1rem;
-  font-weight: 700;
-  color: #1e40af;
-}
-
-.verticalList {
+.wearingShotList {
   list-style: none;
   padding: 0;
   margin: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  align-items: center;
+}
+
+.wearingShotList li {
+  width: 100%;
+  max-width: 500px;
+}
+
+.wearingShotImage {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
 }
 
 .toggleButton {
   display: block;
   width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
   padding: 12px;
   border: none;
   border-radius: 8px;
@@ -266,13 +277,18 @@
   cursor: pointer;
   font-size: 0.9rem;
   font-weight: 600;
-  margin-top: 1rem;
   transition: all 0.2s ease;
 }
 
 .toggleButton:hover {
   background-color: #2563eb;
   transform: translateY(-1px);
+}
+
+/* 레거시 스타일 제거를 위한 주석 처리 */
+.desktopWearingShot,
+.mobileWearingShot {
+  display: none;
 }
 
 /******************************************************
@@ -338,9 +354,19 @@
     border-radius: 12px;
   }
 
+  .titleRow {
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+  }
+
   .title {
     font-size: 1.6rem;
-    margin-bottom: 1.5rem;
+  }
+
+  .seasonBadge {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
   }
 
   .topLayout {
@@ -365,8 +391,9 @@
     gap: 0.75rem;
   }
 
-  .topInfoGrid .detailItem:nth-child(4) {
+  .topInfoGrid .detailItem:nth-child(3) {
     grid-column: span 2;
+    white-space: normal;
   }
 
   .detailItem {
@@ -379,23 +406,18 @@
     max-width: 100%;
   }
 
-  .smallImage {
-    width: 100%;
-    height: auto;
-    max-height: 300px;
-    object-fit: contain;
+  .wearingShotList li {
+    max-width: 100%;
   }
 
-  .desktopWearingShot {
-    display: none;
+  .wearingShotImage {
+    max-height: 400px;
   }
 
-  .mobileWearingShot {
-    display: block;
-  }
-
-  .horizontalList {
-    overflow-x: auto;
+  .toggleButton {
+    max-width: 100%;
+    padding: 12px;
+    font-size: 1rem;
   }
 
   .listButton, .centerListButton {

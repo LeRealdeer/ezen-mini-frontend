@@ -1,0 +1,228 @@
+/* 전체 컨테이너 */
+.container {
+  min-height: 100vh;
+  background: #ffffff;
+  padding: 2rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 카드 */
+.card {
+  max-width: 600px;
+  width: 100%;
+  background: #ffffff;
+  border-radius: 20px;
+  padding: 3rem 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e8f4fd;
+}
+
+/* 인트로 화면 */
+.title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #2196f3;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.imageContainer {
+  margin: 2rem 0;
+  text-align: center;
+}
+
+.description {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #555555;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.startButton {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: #2196f3;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.startButton:hover {
+  background: #1976d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.startButton:active {
+  transform: translateY(0);
+}
+
+/* 퀴즈 화면 */
+.questionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e8f4fd;
+}
+
+.questionNumber {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #2196f3;
+}
+
+.questionCount {
+  font-size: 1rem;
+  color: #999999;
+}
+
+.questionText {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: #333333;
+  line-height: 1.6;
+  margin-bottom: 2.5rem;
+  text-align: center;
+  min-height: 4rem;
+}
+
+/* 옵션 버튼 */
+.optionsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.optionButton {
+  position: relative;
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  padding-left: 4rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: #333333;
+  background: #f8fbff;
+  border: 2px solid #e3f2fd;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+}
+
+.optionButton:hover {
+  background: #e3f2fd;
+  border-color: #2196f3;
+  transform: translateX(4px);
+}
+
+.optionButton:active {
+  transform: translateX(2px);
+}
+
+.optionLabel {
+  position: absolute;
+  left: 1.2rem;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2rem;
+  height: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #2196f3;
+  color: white;
+  font-weight: 700;
+  border-radius: 50%;
+  font-size: 0.9rem;
+}
+
+/* 프로그레스 바 */
+.progressBarContainer {
+  width: 100%;
+  height: 8px;
+  background: #e3f2fd;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progressBar {
+  height: 100%;
+  background: #2196f3;
+  transition: width 0.4s ease;
+  border-radius: 4px;
+}
+
+/* 네비게이션 버튼 */
+.navigation {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.backButton,
+.restartButton {
+  padding: 0.7rem 1.5rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border: 2px solid #e3f2fd;
+  border-radius: 8px;
+  background: white;
+  color: #666666;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.backButton:hover,
+.restartButton:hover {
+  background: #f8fbff;
+  border-color: #2196f3;
+  color: #2196f3;
+}
+
+/* 반응형 디자인 */
+@media (max-width: 600px) {
+  .container {
+    padding: 1rem 0.5rem;
+  }
+
+  .card {
+    padding: 2rem 1.5rem;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 1.6rem;
+  }
+
+  .questionText {
+    font-size: 1.2rem;
+    min-height: 3rem;
+  }
+
+  .optionButton {
+    padding: 1rem 1rem 1rem 3.5rem;
+    font-size: 0.95rem;
+  }
+
+  .optionLabel {
+    left: 1rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 0.85rem;
+  }
+
+  .questionNumber {
+    font-size: 1.3rem;
+  }
+}

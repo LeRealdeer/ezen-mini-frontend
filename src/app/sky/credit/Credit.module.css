@@ -61,16 +61,19 @@
   align-items: center;
   font-size: 1.1rem;
   padding: 8px 0;
+  gap: 16px;
 }
 
 .role {
   color: #495057; /* 역할 텍스트 색상 */
+  flex-shrink: 0;
 }
 
 .name {
   font-weight: 500;
   color: #212529; /* 이름 텍스트 색상 */
   text-align: right;
+  word-break: keep-all;
 }
 
 /* 링크 버튼 그리드 */
@@ -94,6 +97,9 @@
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s ease-in-out;
+  font-size: 0.95rem;
+  text-align: center;
+  word-break: keep-all;
 }
 
 .linkButton:hover {
@@ -103,15 +109,16 @@
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
+
 /* 링크 아이콘 색상 */
 .linkButton svg {
   color: #868e96;
   transition: color 0.2s ease-in-out;
+  flex-shrink: 0;
 }
 .linkButton:hover svg {
   color: #000000;
 }
-
 
 /* 하단 푸터 */
 .footer {
@@ -123,4 +130,93 @@
 
 .footer p {
   margin: 0;
+}
+
+/* 모바일 반응형 */
+@media screen and (max-width: 768px) {
+  .wrapper {
+    padding: 2rem 1rem;
+    min-height: auto;
+  }
+
+  .creditCard {
+    padding: 24px 20px;
+    border-radius: 12px;
+  }
+
+  .title {
+    font-size: 2rem;
+    margin-bottom: 24px;
+  }
+
+  .section {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+  }
+
+  .sectionTitle {
+    font-size: 0.8rem;
+    margin-bottom: 12px;
+  }
+
+  .item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    padding: 10px 0;
+    font-size: 0.95rem;
+  }
+
+  .role {
+    font-size: 0.85rem;
+    color: #868e96;
+  }
+
+  .name {
+    font-size: 1rem;
+    text-align: left;
+    width: 100%;
+  }
+
+  .linksGrid {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .linkButton {
+    padding: 14px 16px;
+    font-size: 0.9rem;
+  }
+
+  .footer {
+    margin-top: 24px;
+    font-size: 0.85rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .creditCard {
+    padding: 20px 16px;
+  }
+
+  .title {
+    font-size: 1.75rem;
+  }
+
+  .item {
+    font-size: 0.9rem;
+  }
+
+  .role {
+    font-size: 0.8rem;
+  }
+
+  .name {
+    font-size: 0.95rem;
+  }
+
+  .linkButton {
+    padding: 12px 14px;
+    font-size: 0.85rem;
+  }
 }

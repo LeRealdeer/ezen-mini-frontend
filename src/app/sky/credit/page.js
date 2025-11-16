@@ -21,7 +21,7 @@ export default function Credit() {
         
         <div className={styles.section}>
           <div className={styles.item}>
-            <span className={styles.role}>총괄 제작</span>
+            <span className={styles.role}>사이트 제작자</span>
             <span className={styles.name}>진사슴</span>
           </div>
         </div>
@@ -39,6 +39,10 @@ export default function Credit() {
           <div className={styles.item}>
             <span className={styles.role}>양초 계산기 아이콘</span>
             <span className={styles.name}>Sky Wiki, 햇비</span>
+          </div>
+          <div className={styles.item}>
+            <span className={styles.role}>악보 만들기</span>
+            <span className={styles.name}>단풍잎</span>
           </div>
         </div>
 

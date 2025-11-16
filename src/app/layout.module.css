@@ -169,7 +169,7 @@
 /* ─── 모바일(≤768px) ─── */
 @media (max-width: 768px) {
   .banner {
-    height: 220px;
+    height: 190px;
     margin: 0;
     border: none;
   }

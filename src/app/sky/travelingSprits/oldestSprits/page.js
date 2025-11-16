@@ -214,6 +214,23 @@ export default function OldestSpiritsPage() {
           
           const isLast = index === spirits.length - 1;
 
+          // 동일한 daysSinceLastVisit 값에 대해 같은 순위 부여
+          let rank = 1;
+          if (index === 0) {
+            rank = 1;
+          } else {
+            // 이전 항목들을 확인하여 같은 daysSinceLastVisit를 가진 가장 첫 인덱스 찾기
+            let sameRankStartIndex = index;
+            for (let i = index - 1; i >= 0; i--) {
+              if (spirits[i].daysSinceLastVisit === daysSinceLastVisit) {
+                sameRankStartIndex = i;
+              } else {
+                break;
+              }
+            }
+            rank = sameRankStartIndex + 1;
+          }
+
           return (
             <Link
               key={`${soul.id}-${soul.name}`}
@@ -221,7 +238,7 @@ export default function OldestSpiritsPage() {
               className={styles.spiritCard}
               ref={isLast ? lastSpiritElementRef : null}
             >
-              <div className={styles.rankBadge}>#{index + 1}</div>
+              <div className={styles.rankBadge}>#{rank}</div>
               
               <div className={styles.imageSection}>
                 {representativeImage?.url ? (

@@ -4,6 +4,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import styles from "./detail.module.css";
+import { getSeasonColor } from "../../../../constants/seasons.js";
 
 export default function SoulDetailPage() {
   const [showCopied, setShowCopied] = useState(false);
@@ -90,7 +91,16 @@ export default function SoulDetailPage() {
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>{soul.name}</h1>
+      {/* 제목과 시즌 뱃지 */}
+      <div className={styles.titleRow}>
+        <h1 className={styles.title}>{soul.name}</h1>
+        <span 
+          className={styles.seasonBadge}
+          style={{ backgroundColor: getSeasonColor(soul.seasonName) }}
+        >
+          {soul.seasonName}
+        </span>
+      </div>
 
       {!isMobile && (
         <div className={styles.topNavigation}>
@@ -121,7 +131,6 @@ export default function SoulDetailPage() {
               {soul.orderNum < 0 ? `${Math.abs(soul.orderNum)}번째 유랑단` : `${soul.orderNum}번째 영혼`}
             </div>
             <div className={styles.detailItem}>{soul.rerunCount}차 복각</div>
-            <div className={styles.detailItem}>{soul.seasonName} 시즌</div>
             <div className={styles.detailItem}>기간: {soul.startDate} ~ {soul.endDate}</div>
           </div>
 
@@ -150,31 +159,24 @@ export default function SoulDetailPage() {
         </div>
       )}
 
+      {/* 착용샷 - PC와 모바일 모두 더보기 버튼 사용 */}
       {wearingShotImages && wearingShotImages.length > 0 && (
-        <div className={styles.desktopWearingShot}>
-          <strong>착용샷</strong>
-          <ul className={styles.horizontalList}>
-            {wearingShotImages.map((url, idx) => (
-              <li key={idx}><img src={url} alt={`착용샷 ${idx + 1}`} className={styles.smallImage} /></li>
-            ))}
-          </ul>
-        </div>
-      )}
-
-      {wearingShotImages && wearingShotImages.length > 0 && (
-        <div className={styles.mobileWearingShot}>
-          <strong>착용샷</strong>
+        <div className={styles.wearingShotSection}>
+          <strong className={styles.wearingShotLabel}>착용샷</strong>
           <div className={styles.wearingShotWrapper}>
-            <div className={`${styles.wearingShotContainer} ${showMoreWearingShots ? styles.showMore : ""}`}>
-              <ul className={styles.verticalList}>
-                {(showMoreWearingShots ? wearingShotImages : [wearingShotImages[0]]).map((url, idx) => (
-                  <li key={idx}><img src={url} alt={`착용샷 ${idx + 1}`} className={styles.smallImage} /></li>
-                ))}
-              </ul>
-            </div>
+            <ul className={styles.wearingShotList}>
+              {(showMoreWearingShots ? wearingShotImages : [wearingShotImages[0]]).map((url, idx) => (
+                <li key={idx}>
+                  <img src={url} alt={`착용샷 ${idx + 1}`} className={styles.wearingShotImage} />
+                </li>
+              ))}
+            </ul>
             {wearingShotImages.length > 1 && (
-              <button onClick={() => setShowMoreWearingShots((prev) => !prev)} className={styles.toggleButton}>
-                {showMoreWearingShots ? "접기" : "더보기"}
+              <button 
+                onClick={() => setShowMoreWearingShots((prev) => !prev)} 
+                className={styles.toggleButton}
+              >
+                {showMoreWearingShots ? "접기" : `더보기 (${wearingShotImages.length - 1}개 더)`}
               </button>
             )}
           </div>
