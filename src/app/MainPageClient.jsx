@@ -28,6 +28,24 @@ export default function MainPageClient() {
 
   return (
     <>
+      {/* 만족도 조사 배너 */}
+      <div className={styles.surveyBanner}>
+        <div className={styles.surveyContent}>
+          <span className={styles.surveyIcon}>📋</span>
+          <div className={styles.surveyText}>
+            <strong>스카이 플래너 만족도 조사</strong>
+            <span className={styles.surveyDesc}>여러분의 소중한 의견을 들려주세요!</span>
+            <span className={styles.surveyDesc}>11월 23일까지 진행</span>
+
+          </div>
+          <button 
+            className={styles.surveyButton}
+            onClick={() => navigateTo('https://docs.google.com/forms/d/e/1FAIpQLSfi2GB5oq9NK1jzLcj8Vx95IBxYbtDpuDQ90z5ZWhyy7vAeYw/viewform?usp=dialog')}
+          >
+            참여하기
+          </button>
+        </div>
+      </div>
 
       <main className={styles.container}>
         {/* 메뉴 그리드 */}

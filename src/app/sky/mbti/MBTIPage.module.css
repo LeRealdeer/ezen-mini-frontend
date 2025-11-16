@@ -19,6 +19,39 @@
   border: 1px solid #e8f4fd;
 }
 
+/* 언어 전환 버튼 */
+.languageSwitch {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.langButton,
+.langActive {
+  padding: 6px 16px;
+  border: 2px solid #2196f3;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.langButton {
+  background: #ffffff;
+  color: #2196f3;
+}
+
+.langButton:hover {
+  background: #e3f2fd;
+}
+
+.langActive {
+  background: #2196f3;
+  color: #ffffff;
+}
+
 /* 인트로 화면 */
 .title {
   font-size: 2rem;
@@ -224,5 +257,11 @@
 
   .questionNumber {
     font-size: 1.3rem;
+  }
+
+  .langButton,
+  .langActive {
+    font-size: 12px;
+    padding: 5px 12px;
   }
 }
