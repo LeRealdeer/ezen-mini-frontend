@@ -148,7 +148,7 @@ export default function OldestSpiritsPage() {
     "순간": "#FF9800",
     "재생": "#3F51B5",
     "사슴": "#A1887F",
-    "둥지": "#795548",
+    "보금자리": "#795548",
     "듀엣": "#FFEB3B",
     "무민": "#CDDC39",
     "광채": "#FF1493",

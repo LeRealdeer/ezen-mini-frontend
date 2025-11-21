@@ -20,7 +20,7 @@ export const SEASON_LIST = [
   { name: "순간", color: "#FF9800" },
   { name: "재생", color: "#3F51B5" },
   { name: "사슴", color: "#A1887F" },
-  { name: "둥지", color: "#795548" },
+  { name: "보금자리", color: "#795548" },
   { name: "듀엣", color: "#FFEB3B" },
   { name: "무민", color: "#CDDC39" },
   { name: "광채", color: "#FF1493" },
