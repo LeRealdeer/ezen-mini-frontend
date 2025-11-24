@@ -12,13 +12,15 @@ const STEP_MOBILE_PX  = 0.3;
 const MIN_SCALE       = 0.05;
 const MAX_SCALE       = 5.0;
 
+// ⚡️ 줌 버튼 변화량 상수 정의 (미세 조절을 위해 줄임)
+const BUTTON_ZOOM_DELTA = 0.01; 
+
 export default function useHeightMeter(canvasRef) {
   const [uploaded, setUploaded] = useState(null);
   const [scale, setScale]       = useState(0.3);
   const [pos, setPos]           = useState({ x: 0, y: 0 });
   const [imgSize, setImgSize]   = useState({ width: 0, height: 0 });
   
-  // 🚨 lastTouchTimeRef (더블탭 관련 Ref) 완전히 제거
   const touchRef = useRef(null); 
   const animationFrameRef = useRef(null); 
   const posRef = useRef(pos); 
@@ -28,13 +30,13 @@ export default function useHeightMeter(canvasRef) {
   useEffect(() => { scaleRef.current = scale; }, [scale]);
 
   const [arrowStep, setArrowStep] = useState(STEP_DESKTOP_PX);
-  const [zoomStep,  setZoomStep]  = useState(0.01);
+  const [zoomStep,  setZoomStep]  = useState(BUTTON_ZOOM_DELTA); // 줌 스텝도 동일하게 설정
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mobile = window.innerWidth < 768;
     setArrowStep(mobile ? STEP_MOBILE_PX : STEP_DESKTOP_PX);
-    setZoomStep(0.01);
+    setZoomStep(BUTTON_ZOOM_DELTA);
   }, []);
 
   const clamp = useCallback(
@@ -95,7 +97,8 @@ export default function useHeightMeter(canvasRef) {
     const mouseX = e.clientX - rect.left;
     const mouseY = e.clientY - rect.top;
 
-    const delta = e.deltaY < 0 ? 0.05 : -0.05;
+    // 휠 줌은 비교적 큰 폭(0.05)을 유지
+    const delta = e.deltaY < 0 ? 0.05 : -0.05; 
     const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta));
     
     if (newScale === currentScale) return;
@@ -115,12 +118,7 @@ export default function useHeightMeter(canvasRef) {
     return () => cvs.removeEventListener('wheel', onWheel);
   }, [onWheel, canvasRef]);
   
-  // ==========================================================
-  // ⚡️ 모바일 터치 이벤트 핸들링 (더블 탭 로직 제거) ⚡️
-  // ==========================================================
-
   const onTouchStart = (e) => {
-    // 🚨 더블 탭 관련 시간 기록 로직 제거
     const currentPos = posRef.current;
     const currentScale = scaleRef.current;
     
@@ -151,7 +149,6 @@ export default function useHeightMeter(canvasRef) {
   };
 
   const onTouchMove = useCallback((e) => {
-    // 브라우저 기본 스크롤/줌 동작 방지
     e.preventDefault(); 
     
     const currentTouch = touchRef.current;
@@ -165,7 +162,6 @@ export default function useHeightMeter(canvasRef) {
       const currentScale = scaleRef.current;
       
       if (currentTouch.type === 'drag' && e.touches.length === 1) {
-        // 이동 (Pan)
         const { pageX, pageY } = e.touches[0];
         const newX = currentTouch.ix + (pageX - currentTouch.sx);
         const newY = currentTouch.iy + (pageY - currentTouch.sy);
@@ -173,7 +169,6 @@ export default function useHeightMeter(canvasRef) {
         setPos(clamp(newX, newY, currentScale));
         
       } else if (currentTouch.type === 'pinch' && e.touches.length === 2) {
-        // 핀치 줌 (Pinch Zoom)
         const [t1, t2] = e.touches;
         
         const currentDist = distance(t1, t2);
@@ -196,7 +191,6 @@ export default function useHeightMeter(canvasRef) {
       cancelAnimationFrame(animationFrameRef.current);
     }
     
-    // 🚨 더블 탭 관련 로직 완전히 제거
     touchRef.current = null;
   };
 
@@ -209,7 +203,11 @@ export default function useHeightMeter(canvasRef) {
     const currentPos = posRef.current;
     const centerX = rect.width / 2;
     const centerY = rect.height / 2;
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta));
+    
+    // ⚡️ 버튼 줌 변화량은 BUTTON_ZOOM_DELTA (0.01) 사용
+    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta * BUTTON_ZOOM_DELTA / 0.01)); 
+    // delta는 +1 또는 -1로 들어오므로, 0.01을 곱하여 미세 조절
+    
     if (newScale === currentScale) return;
     const ratio = newScale / currentScale;
     const newX = centerX - (centerX - currentPos.x) * ratio;
@@ -243,7 +241,7 @@ export default function useHeightMeter(canvasRef) {
     move,
     zoom,
     arrowStep,
-    zoomStep,
+    zoomStep: BUTTON_ZOOM_DELTA, // 반환하는 zoomStep도 0.01로 고정
     download,
   };
 }
