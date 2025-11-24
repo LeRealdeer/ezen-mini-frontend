@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import dynamic from 'next/dynamic';
 import { clampPosition, distance } from './heightUtils';
 
@@ -8,70 +8,66 @@ const html2canvas = dynamic(
 );
 
 const STEP_DESKTOP_PX = 0.5;
-const STEP_MOBILE_PX  = 0.3;
-const MIN_SCALE       = 0.05;
-const MAX_SCALE       = 5.0;
-
-// ⚡️ 줌 버튼 변화량 상수 정의 (미세 조절을 위해 줄임)
-const BUTTON_ZOOM_DELTA = 0.01; 
+const STEP_MOBILE_PX  = 0.3;
+const MIN_SCALE       = 0.05;   // 최저 줌 배율
 
 export default function useHeightMeter(canvasRef) {
   const [uploaded, setUploaded] = useState(null);
-  const [scale, setScale]       = useState(0.3);
-  const [pos, setPos]           = useState({ x: 0, y: 0 });
-  const [imgSize, setImgSize]   = useState({ width: 0, height: 0 });
-  
-  const touchRef = useRef(null); 
-  const animationFrameRef = useRef(null); 
-  const posRef = useRef(pos); 
-  const scaleRef = useRef(scale); 
-
-  useEffect(() => { posRef.current = pos; }, [pos]);
-  useEffect(() => { scaleRef.current = scale; }, [scale]);
+  const [scale, setScale]       = useState(0.3);
+  const [pos, setPos]           = useState({ x: 0, y: 0 });
+  const [imgSize, setImgSize]   = useState({ width: 0, height: 0 });
+  const [touch, setTouch]       = useState(null);
 
   const [arrowStep, setArrowStep] = useState(STEP_DESKTOP_PX);
-  const [zoomStep,  setZoomStep]  = useState(BUTTON_ZOOM_DELTA); // 줌 스텝도 동일하게 설정
+  const [zoomStep,  setZoomStep]  = useState(0.01);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
     const mobile = window.innerWidth < 768;
     setArrowStep(mobile ? STEP_MOBILE_PX : STEP_DESKTOP_PX);
-    setZoomStep(BUTTON_ZOOM_DELTA);
+    setZoomStep (mobile ? 0.0002 : 0.0003);
   }, []);
 
   const clamp = useCallback(
-    (x, y, s) => {
+    (x, y, s = scale) => {
       const rect = canvasRef.current?.getBoundingClientRect() ?? { width: 0, height: 0 };
       return clampPosition({
         posX: x, posY: y, newScale: s,
         containerRect: rect, imageSize: imgSize,
       });
     },
-    [canvasRef, imgSize]
+    [canvasRef, imgSize, scale]
   );
 
-  const fitImageToCanvas = useCallback(() => {
+  // 이미지가 로드되면 자동으로 캔버스에 맞추기
+  useEffect(() => {
+    if (!imgSize.width || !imgSize.height) return;
+    
     const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect || !imgSize.width || !imgSize.height) return;
+    if (!rect) return;
+
     const canvasRatio = rect.width / rect.height;
     const imageRatio = imgSize.width / imgSize.height;
+
     let newScale;
     if (imageRatio > canvasRatio) {
+      // 이미지가 더 가로로 긴 경우 - 너비에 맞춤
       newScale = rect.width / imgSize.width;
     } else {
+      // 이미지가 더 세로로 긴 경우 - 높이에 맞춤
       newScale = rect.height / imgSize.height;
     }
+
+    // 약간 여유 공간 (95%)
+    newScale *= 0.95;
+
+    // 중앙 정렬
     const newX = (rect.width - imgSize.width * newScale) / 2;
     const newY = (rect.height - imgSize.height * newScale) / 2;
+
     setScale(newScale);
     setPos({ x: newX, y: newY });
-  }, [canvasRef, imgSize]);
-
-  useEffect(() => {
-    if (imgSize.width && imgSize.height) {
-      fitImageToCanvas();
-    }
-  }, [imgSize, fitImageToCanvas]);
+  }, [imgSize, canvasRef]);
 
   const onUpload = (e) => {
     const file = e.target.files[0];
@@ -80,36 +76,27 @@ export default function useHeightMeter(canvasRef) {
     reader.onload = (ev) => setUploaded(ev.target.result);
     reader.readAsDataURL(file);
   };
-  
+
   const onDrag = (e) => {
     if (e.buttons !== 1) return;
-    const currentScale = scaleRef.current;
-    setPos((p) => clamp(p.x + e.movementX, p.y + e.movementY, currentScale));
+    setPos((p) => clamp(p.x + e.movementX, p.y + e.movementY));
   };
 
   const onWheel = useCallback((e) => {
     if (e.cancelable) e.preventDefault();
-    const currentScale = scaleRef.current;
-    const currentPos = posRef.current;
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect) return;
 
-    const mouseX = e.clientX - rect.left;
-    const mouseY = e.clientY - rect.top;
+    const offsetX = e.clientX - rect.left;
+    const offsetY = e.clientY - rect.top;
+    const newS    = Math.max(MIN_SCALE, scale + (e.deltaY < 0 ? 0.003 : -0.003));
 
-    // 휠 줌은 비교적 큰 폭(0.05)을 유지
-    const delta = e.deltaY < 0 ? 0.05 : -0.05; 
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta));
-    
-    if (newScale === currentScale) return;
+    const newX = pos.x + offsetX * (1 - newS / scale);
+    const newY = pos.y + offsetY * (1 - newS / scale);
 
-    const ratio = newScale / currentScale;
-    const newX = mouseX - (mouseX - currentPos.x) * ratio;
-    const newY = mouseY - (mouseY - currentPos.y) * ratio;
-
-    setScale(newScale);
-    setPos(clamp(newX, newY, newScale));
-  }, [clamp, canvasRef]);
+    setScale(newS);
+    setPos(clamp(newX, newY, newS));
+  }, [scale, pos, clamp]);
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -117,105 +104,55 @@ export default function useHeightMeter(canvasRef) {
     cvs.addEventListener('wheel', onWheel, { passive: false });
     return () => cvs.removeEventListener('wheel', onWheel);
   }, [onWheel, canvasRef]);
-  
+
   const onTouchStart = (e) => {
-    const currentPos = posRef.current;
-    const currentScale = scaleRef.current;
-    
+    e.preventDefault();
     if (e.touches.length === 1) {
       const { pageX, pageY } = e.touches[0];
-      touchRef.current = { 
-        type: 'drag', 
-        sx: pageX, sy: pageY, 
-        ix: currentPos.x, iy: currentPos.y,
-      };
+      setTouch({ type:'drag', sx:pageX, sy:pageY, ix:pos.x, iy:pos.y });
     } else if (e.touches.length === 2) {
       const [t1, t2] = e.touches;
-      const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect) return;
-
-      const startCenterX = (t1.clientX + t2.clientX) / 2 - rect.left;
-      const startCenterY = (t1.clientY + t2.clientY) / 2 - rect.top;
-
-      touchRef.current = {
-        type: 'pinch',
-        startDist: distance(t1, t2),
-        startScale: currentScale,
-        startPos: { x: currentPos.x, y: currentPos.y },
-        startCenterX,
-        startCenterY,
-      };
+      setTouch({
+        type:'pinch',
+        sd: distance(t1, t2),
+        is: scale,
+        ip: { ...pos },
+        c:  { x:(t1.pageX+t2.pageX)/2, y:(t1.pageY+t2.pageY)/2 },
+      });
     }
   };
 
-  const onTouchMove = useCallback((e) => {
-    e.preventDefault(); 
-    
-    const currentTouch = touchRef.current;
-    if (!currentTouch) return;
+  const onTouchMove = (e) => {
+    e.preventDefault();
+    if (!touch) return;
 
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
+    if (touch.type === 'drag' && e.touches.length === 1) {
+      const { pageX, pageY } = e.touches[0];
+      setPos(clamp(
+        touch.ix + (pageX - touch.sx),
+        touch.iy + (pageY - touch.sy)
+      ));
+    } else if (touch.type === 'pinch' && e.touches.length === 2) {
+      const [t1, t2] = e.touches;
+      let newS = touch.is * (1 + (distance(t1, t2) / touch.sd - 1) * 0.5);
+      newS = Math.max(MIN_SCALE, newS);
+
+      const newX = touch.ip.x + touch.c.x * (1 - newS / touch.is);
+      const newY = touch.ip.y + touch.c.y * (1 - newS / touch.is);
+
+      setScale(newS);
+      setPos(clamp(newX, newY, newS));
     }
-    
-    animationFrameRef.current = requestAnimationFrame(() => {
-      const currentScale = scaleRef.current;
-      
-      if (currentTouch.type === 'drag' && e.touches.length === 1) {
-        const { pageX, pageY } = e.touches[0];
-        const newX = currentTouch.ix + (pageX - currentTouch.sx);
-        const newY = currentTouch.iy + (pageY - currentTouch.sy);
-        
-        setPos(clamp(newX, newY, currentScale));
-        
-      } else if (currentTouch.type === 'pinch' && e.touches.length === 2) {
-        const [t1, t2] = e.touches;
-        
-        const currentDist = distance(t1, t2);
-        let newScale = currentTouch.startScale * (currentDist / currentTouch.startDist);
-        newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
-
-        const scaleRatio = newScale / currentTouch.startScale;
-        
-        const newX = currentTouch.startCenterX - (currentTouch.startCenterX - currentTouch.startPos.x) * scaleRatio;
-        const newY = currentTouch.startCenterY - (currentTouch.startCenterY - currentTouch.startPos.y) * scaleRatio;
-        
-        setScale(newScale);
-        setPos(clamp(newX, newY, newScale));
-      }
-    });
-  }, [clamp]);
-
-  const onTouchEnd = (e) => {
-    if (animationFrameRef.current) {
-      cancelAnimationFrame(animationFrameRef.current);
-    }
-    
-    touchRef.current = null;
   };
 
-  const move = (dx, dy) => setPos((p) => clamp(p.x + dx, p.y + dy, scaleRef.current));
+  const move = (dx, dy) => setPos((p) => clamp(p.x + dx, p.y + dy));
 
   const zoom = (delta) => {
-    const rect = canvasRef.current?.getBoundingClientRect();
-    if (!rect) return;
-    const currentScale = scaleRef.current;
-    const currentPos = posRef.current;
-    const centerX = rect.width / 2;
-    const centerY = rect.height / 2;
-    
-    // ⚡️ 버튼 줌 변화량은 BUTTON_ZOOM_DELTA (0.01) 사용
-    const newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, currentScale + delta * BUTTON_ZOOM_DELTA / 0.01)); 
-    // delta는 +1 또는 -1로 들어오므로, 0.01을 곱하여 미세 조절
-    
-    if (newScale === currentScale) return;
-    const ratio = newScale / currentScale;
-    const newX = centerX - (centerX - currentPos.x) * ratio;
-    const newY = centerY - (centerY - currentPos.y) * ratio;
-    setScale(newScale);
-    setPos(clamp(newX, newY, newScale));
+    const s = Math.max(MIN_SCALE, scale + delta);
+    setScale(s);
+    setPos(clamp(pos.x, pos.y, s));
   };
-  
+
   const download = async () => {
     const el = canvasRef.current;
     if (!el) return;
@@ -237,11 +174,10 @@ export default function useHeightMeter(canvasRef) {
     onDrag,
     onTouchStart,
     onTouchMove,
-    onTouchEnd,
     move,
     zoom,
     arrowStep,
-    zoomStep: BUTTON_ZOOM_DELTA, // 반환하는 zoomStep도 0.01로 고정
+    zoomStep,
     download,
   };
 }
