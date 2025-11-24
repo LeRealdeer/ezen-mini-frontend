@@ -10,7 +10,7 @@ export default function HeightMeterPage() {
   /* 커스텀 훅 : 이동 · 줌 · 다운로드 */
   const {
     uploaded, setImgSize, pos, scale,
-    onUpload, onDrag, onTouchStart, onTouchMove,
+    onUpload, onDrag, onTouchStart, onTouchMove, onTouchEnd,  // onTouchEnd 추가
     move, zoom, arrowStep, zoomStep, download,
   } = useHeightMeter(canvasRef);
 
@@ -39,7 +39,7 @@ export default function HeightMeterPage() {
           onMouseDown={e=>e.preventDefault()}
           onTouchStart={onTouchStart}
           onTouchMove={onTouchMove}
-          onTouchEnd={()=>null}
+          onTouchEnd={onTouchEnd}
         >
           {uploaded && (
             <img

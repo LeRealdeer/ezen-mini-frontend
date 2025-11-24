@@ -29,7 +29,7 @@ export default function MainPageClient() {
   return (
     <>
       {/* 만족도 조사 배너 */}
-      <div className={styles.surveyBanner}>
+      {/* <div className={styles.surveyBanner}>
         <div className={styles.surveyContent}>
           <span className={styles.surveyIcon}>📋</span>
           <div className={styles.surveyText}>
@@ -45,7 +45,7 @@ export default function MainPageClient() {
             참여하기
           </button>
         </div>
-      </div>
+      </div> */}
 
       <main className={styles.container}>
         {/* 메뉴 그리드 */}
