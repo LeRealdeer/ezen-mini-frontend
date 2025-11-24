@@ -58,9 +58,6 @@ export default function useHeightMeter(canvasRef) {
       newScale = rect.height / imgSize.height;
     }
 
-    // 약간 여유 공간 (95%)
-    newScale *= 0.95;
-
     // 중앙 정렬
     const newX = (rect.width - imgSize.width * newScale) / 2;
     const newY = (rect.height - imgSize.height * newScale) / 2;
