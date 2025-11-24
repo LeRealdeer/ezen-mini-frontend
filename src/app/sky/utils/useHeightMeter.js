@@ -46,23 +46,18 @@ export default function useHeightMeter(canvasRef) {
     const rect = canvasRef.current?.getBoundingClientRect();
     if (!rect || !imgSize.width || !imgSize.height) return;
 
-    // 캔버스와 이미지의 비율 계산
     const canvasRatio = rect.width / rect.height;
     const imageRatio = imgSize.width / imgSize.height;
 
     let newScale;
     if (imageRatio > canvasRatio) {
-      // 이미지가 더 가로로 긴 경우 - 너비에 맞춤
       newScale = rect.width / imgSize.width;
     } else {
-      // 이미지가 더 세로로 긴 경우 - 높이에 맞춤
       newScale = rect.height / imgSize.height;
     }
 
-    // 약간 여유 공간을 두고 (95%)
-    
+    newScale *= 0.95;
 
-    // 중앙 정렬
     const newX = (rect.width - imgSize.width * newScale) / 2;
     const newY = (rect.height - imgSize.height * newScale) / 2;
 
@@ -70,7 +65,6 @@ export default function useHeightMeter(canvasRef) {
     setPos({ x: newX, y: newY });
   }, [canvasRef, imgSize]);
 
-  // imgSize가 변경되면 자동으로 맞추기
   useEffect(() => {
     if (imgSize.width && imgSize.height) {
       fitImageToCanvas();
@@ -130,22 +124,24 @@ export default function useHeightMeter(canvasRef) {
         sy: pageY, 
         ix: pos.x, 
         iy: pos.y,
-        timestamp: Date.now() 
       });
     } else if (e.touches.length === 2) {
       const [t1, t2] = e.touches;
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
 
-      const centerX = (t1.pageX + t2.pageX) / 2 - rect.left;
-      const centerY = (t1.pageY + t2.pageY) / 2 - rect.top;
+      // 두 손가락 중심점 (캔버스 좌표)
+      const centerX = (t1.clientX + t2.clientX) / 2 - rect.left;
+      const centerY = (t1.clientY + t2.clientY) / 2 - rect.top;
 
       setTouch({
         type: 'pinch',
-        sd: distance(t1, t2),
-        is: scale,
-        ip: { ...pos },
-        center: { x: centerX, y: centerY },
+        initialDistance: distance(t1, t2),
+        initialScale: scale,
+        initialPos: { ...pos },
+        // 고정된 중심점 (이미지 상의 좌표)
+        pivotX: (centerX - pos.x) / scale,
+        pivotY: (centerY - pos.y) / scale,
       });
     }
   };
@@ -161,26 +157,25 @@ export default function useHeightMeter(canvasRef) {
       
       setPos(clamp(newX, newY));
       
-      touch.vx = pageX - touch.sx;
-      touch.vy = pageY - touch.sy;
-      touch.lastMove = Date.now();
-      
     } else if (touch.type === 'pinch' && e.touches.length === 2) {
       const [t1, t2] = e.touches;
       const rect = canvasRef.current?.getBoundingClientRect();
       if (!rect) return;
       
-      const currentCenterX = (t1.pageX + t2.pageX) / 2 - rect.left;
-      const currentCenterY = (t1.pageY + t2.pageY) / 2 - rect.top;
+      // 현재 거리
+      const currentDistance = distance(t1, t2);
       
-      const currentDist = distance(t1, t2);
-      const distRatio = currentDist / touch.sd;
-      let newScale = touch.is * distRatio;
+      // 새 스케일 계산
+      let newScale = touch.initialScale * (currentDistance / touch.initialDistance);
       newScale = Math.max(MIN_SCALE, Math.min(MAX_SCALE, newScale));
 
-      const ratio = newScale / touch.is;
-      const newX = currentCenterX - (touch.center.x - touch.ip.x) * ratio;
-      const newY = currentCenterY - (touch.center.y - touch.ip.y) * ratio;
+      // 현재 두 손가락 중심점
+      const currentCenterX = (t1.clientX + t2.clientX) / 2 - rect.left;
+      const currentCenterY = (t1.clientY + t2.clientY) / 2 - rect.top;
+
+      // 이미지 상의 고정점이 현재 중심점에 오도록 위치 계산
+      const newX = currentCenterX - touch.pivotX * newScale;
+      const newY = currentCenterY - touch.pivotY * newScale;
 
       setScale(newScale);
       setPos(clamp(newX, newY, newScale));
@@ -189,14 +184,16 @@ export default function useHeightMeter(canvasRef) {
 
   const onTouchEnd = (e) => {
     const now = Date.now();
-    if (lastTouchRef.current && now - lastTouchRef.current < 300) {
+    if (lastTouchRef.current && now - lastTouchRef.current < 300 && e.changedTouches.length === 1) {
       const rect = canvasRef.current?.getBoundingClientRect();
-      if (!rect || !e.changedTouches[0]) return;
+      if (!rect) return;
       
-      const tapX = e.changedTouches[0].pageX - rect.left;
-      const tapY = e.changedTouches[0].pageY - rect.top;
+      const tapX = e.changedTouches[0].clientX - rect.left;
+      const tapY = e.changedTouches[0].clientY - rect.top;
       
-      const targetScale = scale < 0.8 ? 1.0 : 0.3;
+      // 더블탭: 확대/원래대로
+      const targetScale = scale < 0.8 ? 1.2 : fitImageToCanvas() || 0.3;
+      
       const ratio = targetScale / scale;
       const newX = tapX - (tapX - pos.x) * ratio;
       const newY = tapY - (tapY - pos.y) * ratio;
