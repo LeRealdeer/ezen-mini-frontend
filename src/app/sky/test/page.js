@@ -14,7 +14,7 @@ function Notice() {
     <div className={styles.noticeBox}>
       <p>본 시험은 Sky:Children Of Light의 팬 제작 모의고사입니다.</p>
       <p>시간 제한은 없으며, 아는만큼 편하게 풀어주세요.</p>
-      <p>25년 11월 01일 기준으로 출제되었습니다.</p>
+      <p>25년 12월 01일 기준으로 출제되었습니다.</p>
       <p>100점 이상 - ??? / 80점 이상 - 고인물 / 60점 이상 - 중비 / 60점 미만 - 참새</p>
       <p className={styles.noticeSign}>출제자 비아</p>
     </div>
@@ -125,7 +125,7 @@ function ResultView({ profile, score, answers, onRetry, onGoToMain }) {
       try {
         await navigator.share({
           title: '스카이 모의고사 결과!',
-          text: `${profile.name}님의 25년 11월 스카이 모의고사 점수는 ${score} 점, 등급은 '${grade}'입니다!`,
+          text: `${profile.name}님의 25년 12월 스카이 모의고사 점수는 ${score} 점, 등급은 '${grade}'입니다!`,
           url: 'https://korea-sky-planner.com/sky/test',
         });
       } catch (error) { console.error('공유에 실패했습니다.', error); }
@@ -147,7 +147,7 @@ function ResultView({ profile, score, answers, onRetry, onGoToMain }) {
         const image = canvas.toDataURL('image/png');
         const link = document.createElement('a');
         link.href = image;
-        link.download = '25년_11월_스카이_모의고사_결과.png';
+        link.download = '25년_12월_스카이_모의고사_결과.png';
         link.click();
       });
     }
@@ -158,7 +158,7 @@ function ResultView({ profile, score, answers, onRetry, onGoToMain }) {
       <div className={styles.certificateBox} ref={certificateRef}>
         <div className={styles.titleContainer}>
           <h1 className={styles.mainTitle}>이달의 모의고사</h1>
-          <span className={styles.subTitle}>25년 11월</span>
+          <span className={styles.subTitle}>25년 12월</span>
         </div>
         <img src={profile.image} alt="Profile" className={styles.resultProfileImage} />
         <h2 className={styles.resultName}>{profile.name} 님</h2>
@@ -227,7 +227,7 @@ export default function SkyQuizPage() {
       {!isSubmitted && (
         <div className={styles.titleContainer}>
           <h1 className={styles.mainTitle}>이달의 모의고사</h1>
-          <span className={styles.subTitle}>25년 11월</span>
+          <span className={styles.subTitle}>25년 12월</span>
         </div>
       )}
 
