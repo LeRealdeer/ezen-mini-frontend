@@ -26,10 +26,10 @@ export default function NoticePage() {
       </div>
       
       <p className={styles.description}>
-        양초 계산기는 비시즌에 쉬어갑니다.
+        유랑대백과/오래된 유랑 점검 중입니다!
         <br />
         <br />
-        다음 시즌에 다시 만나요! (목요일 오픈 예정!)
+        곧 다시 찾아올게요!
       </p>
       <button className={styles.optionButton} onClick={handleBack}>
         뒤로가기
